@@ -69,16 +69,14 @@ Fail::Fail(const edm::ParameterSet& iConfig)
    char* env_id = std::getenv("CRAB_Id");
    char* env_retry = std::getenv("CRAB_Retry");
 
-   if (not env_id and not env_retry) {
-      std::cout << "No CRAB parameters found in the environment!" << std::endl;
+   if (not env_id or not env_retry) {
+      std::cout << "Not all needed CRAB parameters found in the environment!" << std::endl;
    } else {
       int id = std::stoi(env_id);
       int retry = std::stoi(env_retry);
 
       std::cout << "CRAB Id (Retry): " << id << " (" << retry << ")" << std::endl;
-
-      if (id == 1 and retry < 4)
-         assert(false);
+      assert(id != 1 or retry > 3);
    }
 }
 
