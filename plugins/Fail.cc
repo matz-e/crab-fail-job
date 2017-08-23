@@ -48,6 +48,8 @@ class Fail : public edm::one::EDAnalyzer<>  {
       virtual void endJob() override;
 
       // ----------member data ---------------------------
+      std::string jobid_;
+      int retries_;
 };
 
 //
@@ -61,24 +63,12 @@ class Fail : public edm::one::EDAnalyzer<>  {
 //
 // constructors and destructor
 //
-Fail::Fail(const edm::ParameterSet& iConfig)
+Fail::Fail(const edm::ParameterSet& cfg)
 
 {
    //now do what ever initialization is needed
-   std::string::size_type sz;
-   char* env_id = std::getenv("CRAB_Id");
-   char* env_retry = std::getenv("CRAB_Retry");
-
-   if (not env_id or not env_retry) {
-      std::cout << "Not all needed CRAB parameters found in the environment!" << std::endl;
-   } else {
-      std::string id(env_id);
-      int retry = std::stoi(env_retry);
-
-      std::cout << "CRAB Id (Retry): " << id << " (" << retry << ")" << std::endl;
-      assert(id != "1" or retry > 3);
-      assert(id != "1-1" or retry > 3);
-   }
+   jobid_ = cfg.getParameter<std::string>("jobid");
+   retries_ = cfg.getParameter<int>("retries");
 }
 
 
@@ -99,6 +89,18 @@ Fail::~Fail()
 void
 Fail::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   char* env_id = std::getenv("CRAB_Id");
+   char* env_retry = std::getenv("CRAB_Retry");
+
+   if (not env_id or not env_retry) {
+      std::cout << "Not all needed CRAB parameters found in the environment!" << std::endl;
+   } else {
+      std::string id(env_id);
+      int retry = std::stoi(env_retry);
+
+      std::cout << "CRAB Id (Retry): " << id << " (" << retry << ")" << std::endl;
+      assert(id != jobid_ or retry >= retries_);
+   }
 }
 
 

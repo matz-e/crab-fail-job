@@ -14,5 +14,5 @@ process.output = cms.OutputModule(
 )
 process.out = cms.EndPath(process.output)
 
-process.fail = cms.EDAnalyzer("Fail")
+process.fail = cms.EDAnalyzer("Fail", jobid=cms.string("1"), retries=cms.int32(2))
 process.p = cms.Path(process.fail)
